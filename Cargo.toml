@@ -3,3 +3,4 @@ members = [
     "renderer",
     "sandbox",
 ]
+resolver = "2"

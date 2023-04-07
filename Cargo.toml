@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "renderer",
+    "render_engine",
     "sandbox",
 ]
 resolver = "2"

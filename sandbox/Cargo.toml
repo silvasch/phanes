@@ -8,5 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.70"
 color-eyre = "0.6.2"
+env_logger = "0.10.0"
+log = "0.4.17"
 renderer = { version = "0.1.0", path = "../renderer" }
 thiserror = "1.0.40"

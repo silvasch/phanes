@@ -1111,8 +1111,6 @@ name = "renderer"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "env_logger",
- "log",
  "thiserror",
  "wgpu",
  "winit",
@@ -1150,6 +1148,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "color-eyre",
+ "env_logger",
+ "log",
  "renderer",
  "thiserror",
 ]

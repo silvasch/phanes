@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "render_engine",
+    "ecs",
     "sandbox",
 ]

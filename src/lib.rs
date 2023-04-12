@@ -1,3 +1,1 @@
-pub fn run() {
-    println!("Hello, World!");
-}
+pub mod error;

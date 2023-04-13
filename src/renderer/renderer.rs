@@ -42,13 +42,16 @@ impl Renderer {
                 },
                 Event::RedrawRequested(window_id) if window_id == self.window.window().id() => {
                     self.render_objects_manager.update();
-                    match self.window.render(&self.render_objects_manager.render_objects()) {
-                        Ok(_) => {},
+                    match self
+                        .window
+                        .render(&self.render_objects_manager.render_objects())
+                    {
+                        Ok(_) => {}
                         Err(crate::error::Error::WgpuSurfaceLost) => self.window.reconfigure(),
                         Err(crate::error::Error::OutOfMemory) => *control_flow = ControlFlow::Exit,
                         Err(e) => eprintln!("{:?}", e),
                     }
-                },
+                }
                 Event::MainEventsCleared => {
                     self.window.window().request_redraw();
                 }
@@ -75,7 +78,9 @@ impl RendererBuilder {
 
     pub async fn build(self) -> Result<Renderer, crate::error::Error> {
         let event_loop = EventLoop::new();
-        let window = WindowBuilder::new().build(&event_loop).or(Err(crate::error::Error::WinitOsError))?;
+        let window = WindowBuilder::new()
+            .build(&event_loop)
+            .or(Err(crate::error::Error::WinitOsError))?;
 
         Ok(Renderer {
             render_objects_manager: RenderObjectsManager::new(self.render_objects),

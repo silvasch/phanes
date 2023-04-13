@@ -11,7 +11,7 @@ pub struct Window {
 }
 
 impl Window {
-    pub async fn new(window: winit::window::Window) -> anyhow::Result<Self> {
+    pub async fn new(window: winit::window::Window) -> Result<Self, crate::error::Error> {
         let size = window.inner_size();
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -19,7 +19,7 @@ impl Window {
             dx12_shader_compiler: Default::default(),
         });
 
-        let surface = unsafe { instance.create_surface(&window) }?;
+        let surface = unsafe { instance.create_surface(&window) }.or(Err(crate::error::Error::SurfaceCreateError))?;
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -39,7 +39,7 @@ impl Window {
                 },
                 None,
             )
-            .await?;
+            .await.or(Err(crate::error::Error::RequestDeviceError))?;
 
         let surface_caps = surface.get_capabilities(&adapter);
         let surface_format = surface_caps
@@ -73,8 +73,14 @@ impl Window {
     pub fn render(
         &self,
         _render_objects: &Vec<Box<dyn RenderObject>>,
-    ) -> Result<(), wgpu::SurfaceError> {
-        let output = self.surface.get_current_texture()?;
+    ) -> Result<(), crate::error::Error> {
+        let output = match self.surface.get_current_texture() {
+            Ok(output) => output,
+            Err(wgpu::SurfaceError::OutOfMemory) => return Err(crate::error::Error::OutOfMemory),
+            Err(wgpu::SurfaceError::Lost) => return Err(crate::error::Error::SurfaceLost),
+            Err(wgpu::SurfaceError::Outdated) => return Err(crate::error::Error::SurfaceOutdated),
+            Err(wgpu::SurfaceError::Timeout) => return Err(crate::error::Error::SurfaceTimeout),
+        };
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());

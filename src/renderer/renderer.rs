@@ -17,7 +17,7 @@ impl Renderer {
         RendererBuilder::new()
     }
 
-    pub fn run(mut self) -> anyhow::Result<()> {
+    pub fn run(mut self) -> Result<(), crate::error::Error> {
         self.event_loop
             .run(move |event, _, control_flow| match event {
                 Event::WindowEvent {
@@ -44,8 +44,8 @@ impl Renderer {
                     self.render_objects_manager.update();
                     match self.window.render(&self.render_objects_manager.render_objects()) {
                         Ok(_) => {},
-                        Err(wgpu::SurfaceError::Lost) => self.window.reconfigure(),
-                        Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                        Err(crate::error::Error::SurfaceLost) => self.window.reconfigure(),
+                        Err(crate::error::Error::OutOfMemory) => *control_flow = ControlFlow::Exit,
                         Err(e) => eprintln!("{:?}", e),
                     }
                 },
@@ -73,9 +73,9 @@ impl RendererBuilder {
         return self;
     }
 
-    pub async fn build(self) -> anyhow::Result<Renderer> {
+    pub async fn build(self) -> Result<Renderer, crate::error::Error> {
         let event_loop = EventLoop::new();
-        let window = WindowBuilder::new().build(&event_loop)?;
+        let window = WindowBuilder::new().build(&event_loop).or(Err(crate::error::Error::WinitOsError))?;
 
         Ok(Renderer {
             render_objects_manager: RenderObjectsManager::new(self.render_objects),

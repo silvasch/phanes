@@ -20,7 +20,7 @@ impl Window {
         });
 
         let surface = unsafe { instance.create_surface(&window) }
-            .or(Err(crate::error::Error::WgpuSurfaceCreateError))?;
+            .or(Err(crate::error::Error::WgpuSurfaceCreateError))?;unsafe { instance.create_surface(&window) }.or(Err(crate::error::Error::WgpuSurfaceCreateError))?;
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {

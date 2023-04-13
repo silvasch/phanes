@@ -15,7 +15,6 @@ pub enum Error {
     WgpuRequestDeviceError,
     #[error("could not create adapter")]
     WgpuAdapterCreationFailed,
-
     #[error("the program has run out of memory")]
     OutOfMemory,
     #[error("unknown error: {0}")]

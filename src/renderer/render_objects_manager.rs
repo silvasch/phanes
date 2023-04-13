@@ -6,9 +6,7 @@ pub struct RenderObjectsManager {
 
 impl RenderObjectsManager {
     pub fn new(render_objects: Vec<Box<dyn RenderObject>>) -> Self {
-        Self {
-            render_objects,
-        }
+        Self { render_objects }
     }
 
     pub fn update(&mut self) {

@@ -19,7 +19,8 @@ impl Window {
             dx12_shader_compiler: Default::default(),
         });
 
-        let surface = unsafe { instance.create_surface(&window) }.or(Err(crate::error::Error::WgpuSurfaceCreateError))?;
+        let surface = unsafe { instance.create_surface(&window) }
+            .or(Err(crate::error::Error::WgpuSurfaceCreateError))?;unsafe { instance.create_surface(&window) }.or(Err(crate::error::Error::WgpuSurfaceCreateError))?;
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -39,7 +40,8 @@ impl Window {
                 },
                 None,
             )
-            .await.or(Err(crate::error::Error::WgpuRequestDeviceError))?;
+            .await
+            .or(Err(crate::error::Error::WgpuRequestDeviceError))?;
 
         let surface_caps = surface.get_capabilities(&adapter);
         let surface_format = surface_caps
@@ -78,8 +80,12 @@ impl Window {
             Ok(output) => output,
             Err(wgpu::SurfaceError::OutOfMemory) => return Err(crate::error::Error::OutOfMemory),
             Err(wgpu::SurfaceError::Lost) => return Err(crate::error::Error::WgpuSurfaceLost),
-            Err(wgpu::SurfaceError::Outdated) => return Err(crate::error::Error::WgpuSurfaceOutdated),
-            Err(wgpu::SurfaceError::Timeout) => return Err(crate::error::Error::WgpuSurfaceTimeout),
+            Err(wgpu::SurfaceError::Outdated) => {
+                return Err(crate::error::Error::WgpuSurfaceOutdated)
+            }
+            Err(wgpu::SurfaceError::Timeout) => {
+                return Err(crate::error::Error::WgpuSurfaceTimeout)
+            }
         };
         let view = output
             .texture

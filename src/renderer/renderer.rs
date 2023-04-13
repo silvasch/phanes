@@ -4,11 +4,10 @@ use winit::{
     window::WindowBuilder,
 };
 
-use super::{RenderObject, Window};
+use super::{RenderObject, RenderObjectsManager, Window};
 
 pub struct Renderer {
-    #[allow(unused)]
-    render_objects: Vec<Box<dyn RenderObject>>,
+    render_objects_manager: RenderObjectsManager,
     event_loop: EventLoop<()>,
     window: Window,
 }
@@ -42,7 +41,8 @@ impl Renderer {
                     _ => {}
                 },
                 Event::RedrawRequested(window_id) if window_id == self.window.window().id() => {
-                    match self.window.render(&self.render_objects) {
+                    self.render_objects_manager.update();
+                    match self.window.render(&self.render_objects_manager.render_objects()) {
                         Ok(_) => {},
                         Err(wgpu::SurfaceError::Lost) => self.window.reconfigure(),
                         Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
@@ -78,10 +78,8 @@ impl RendererBuilder {
         let window = WindowBuilder::new().build(&event_loop)?;
 
         Ok(Renderer {
-            render_objects: self.render_objects,
-
+            render_objects_manager: RenderObjectsManager::new(self.render_objects),
             event_loop,
-
             window: Window::new(window).await?,
         })
     }

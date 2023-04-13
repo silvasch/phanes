@@ -4,17 +4,17 @@ use winit::{
     window::WindowBuilder,
 };
 
-use super::{RenderObject, RenderObjectsManager, Window};
+use super::{RenderObject, RenderObjectsManager, Renderer};
 
-pub struct Renderer {
+pub struct App {
     render_objects_manager: RenderObjectsManager,
     event_loop: EventLoop<()>,
-    window: Window,
+    renderer: Renderer,
 }
 
-impl Renderer {
-    pub fn new() -> RendererBuilder {
-        RendererBuilder::new()
+impl App {
+    pub fn new() -> AppBuilder {
+        AppBuilder::new()
     }
 
     pub fn run(mut self) -> Result<(), crate::error::Error> {
@@ -23,7 +23,7 @@ impl Renderer {
                 Event::WindowEvent {
                     ref event,
                     window_id,
-                } if window_id == self.window.window().id() => match event {
+                } if window_id == self.renderer.window().id() => match event {
                     WindowEvent::CloseRequested
                     | WindowEvent::KeyboardInput {
                         input:
@@ -34,37 +34,37 @@ impl Renderer {
                             },
                         ..
                     } => *control_flow = ControlFlow::Exit,
-                    WindowEvent::Resized(physical_size) => self.window.resize(*physical_size),
+                    WindowEvent::Resized(physical_size) => self.renderer.resize(*physical_size),
                     WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                        self.window.resize(**new_inner_size)
+                        self.renderer.resize(**new_inner_size)
                     }
                     _ => {}
                 },
-                Event::RedrawRequested(window_id) if window_id == self.window.window().id() => {
+                Event::RedrawRequested(window_id) if window_id == self.renderer.window().id() => {
                     self.render_objects_manager.update();
                     match self
-                        .window
+                        .renderer
                         .render(&self.render_objects_manager.render_objects())
                     {
                         Ok(_) => {}
-                        Err(crate::error::Error::WgpuSurfaceLost) => self.window.reconfigure(),
+                        Err(crate::error::Error::WgpuSurfaceLost) => self.renderer.reconfigure(),
                         Err(crate::error::Error::OutOfMemory) => *control_flow = ControlFlow::Exit,
                         Err(e) => eprintln!("{:?}", e),
                     }
                 }
                 Event::MainEventsCleared => {
-                    self.window.window().request_redraw();
+                    self.renderer.window().request_redraw();
                 }
                 _ => {}
             });
     }
 }
 
-pub struct RendererBuilder {
+pub struct AppBuilder {
     render_objects: Vec<Box<dyn RenderObject>>,
 }
 
-impl RendererBuilder {
+impl AppBuilder {
     pub fn new() -> Self {
         Self {
             render_objects: vec![],
@@ -76,16 +76,16 @@ impl RendererBuilder {
         return self;
     }
 
-    pub async fn build(self) -> Result<Renderer, crate::error::Error> {
+    pub async fn build(self) -> Result<App, crate::error::Error> {
         let event_loop = EventLoop::new();
         let window = WindowBuilder::new()
             .build(&event_loop)
             .or(Err(crate::error::Error::WinitOsError))?;
 
-        Ok(Renderer {
+        Ok(App {
             render_objects_manager: RenderObjectsManager::new(self.render_objects),
             event_loop,
-            window: Window::new(window).await?,
+            renderer: Renderer::new(window).await?,
         })
     }
 }

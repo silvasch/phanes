@@ -1,10 +1,10 @@
-mod renderer;
-pub use renderer::{Renderer, RendererBuilder};
+mod app;
+pub use app::{App, AppBuilder};
 mod render_object;
 pub use render_object::RenderObject;
 mod render_objects_manager;
 use render_objects_manager::RenderObjectsManager;
-mod window;
-use window::Window;
+mod renderer;
+use renderer::Renderer;
 mod vertex;
 pub use vertex::Vertex;

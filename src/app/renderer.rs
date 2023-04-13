@@ -1,7 +1,9 @@
+use winit::window::Window;
+
 use super::RenderObject;
 
-pub struct Window {
-    window: winit::window::Window,
+pub struct Renderer {
+    window: Window,
     surface: wgpu::Surface,
     device: wgpu::Device,
     queue: wgpu::Queue,
@@ -10,8 +12,8 @@ pub struct Window {
     render_pipeline: wgpu::RenderPipeline,
 }
 
-impl Window {
-    pub async fn new(window: winit::window::Window) -> Result<Self, crate::error::Error> {
+impl Renderer {
+    pub async fn new(window: Window) -> Result<Self, crate::error::Error> {
         let size = window.inner_size();
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -183,7 +185,7 @@ impl Window {
         self.resize(self.size);
     }
 
-    pub fn window(&self) -> &winit::window::Window {
+    pub fn window(&self) -> &Window {
         &self.window
     }
 }

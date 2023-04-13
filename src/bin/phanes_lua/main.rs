@@ -1,10 +1,10 @@
-use phanes::renderer::Renderer;
+use phanes::app::App;
 
 fn main() {
     env_logger::init();
     color_eyre::install().unwrap();
 
-    let renderer = pollster::block_on(Renderer::new().build()).unwrap();
+    let app = pollster::block_on(App::new().build()).unwrap();
 
-    renderer.run().unwrap();
+    app.run().unwrap();
 }

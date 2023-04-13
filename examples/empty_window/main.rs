@@ -1,6 +1,6 @@
-use phanes::renderer::Renderer;
+use phanes::app::App;
 
 fn main() {
-    let renderer = pollster::block_on(Renderer::new().build()).unwrap();
-    renderer.run().unwrap();
+    let app = pollster::block_on(App::new().build()).unwrap();
+    app.run().unwrap();
 }

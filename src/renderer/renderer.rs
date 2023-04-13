@@ -4,11 +4,10 @@ use winit::{
     window::WindowBuilder,
 };
 
-use super::{RenderObject, Window};
+use super::{RenderObject, RenderObjectsManager, Window};
 
 pub struct Renderer {
-    #[allow(unused)]
-    render_objects: Vec<Box<dyn RenderObject>>,
+    render_objects_manager: RenderObjectsManager,
     event_loop: EventLoop<()>,
     window: Window,
 }
@@ -18,7 +17,7 @@ impl Renderer {
         RendererBuilder::new()
     }
 
-    pub fn run(mut self) -> anyhow::Result<()> {
+    pub fn run(mut self) -> Result<(), crate::error::Error> {
         self.event_loop
             .run(move |event, _, control_flow| match event {
                 Event::WindowEvent {
@@ -42,10 +41,11 @@ impl Renderer {
                     _ => {}
                 },
                 Event::RedrawRequested(window_id) if window_id == self.window.window().id() => {
-                    match self.window.render(&self.render_objects) {
+                    self.render_objects_manager.update();
+                    match self.window.render(&self.render_objects_manager.render_objects()) {
                         Ok(_) => {},
-                        Err(wgpu::SurfaceError::Lost) => self.window.reconfigure(),
-                        Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                        Err(crate::error::Error::WgpuSurfaceLost) => self.window.reconfigure(),
+                        Err(crate::error::Error::OutOfMemory) => *control_flow = ControlFlow::Exit,
                         Err(e) => eprintln!("{:?}", e),
                     }
                 },
@@ -73,15 +73,13 @@ impl RendererBuilder {
         return self;
     }
 
-    pub async fn build(self) -> anyhow::Result<Renderer> {
+    pub async fn build(self) -> Result<Renderer, crate::error::Error> {
         let event_loop = EventLoop::new();
-        let window = WindowBuilder::new().build(&event_loop)?;
+        let window = WindowBuilder::new().build(&event_loop).or(Err(crate::error::Error::WinitOsError))?;
 
         Ok(Renderer {
-            render_objects: self.render_objects,
-
+            render_objects_manager: RenderObjectsManager::new(self.render_objects),
             event_loop,
-
             window: Window::new(window).await?,
         })
     }

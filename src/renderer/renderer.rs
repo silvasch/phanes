@@ -44,7 +44,7 @@ impl Renderer {
                     self.render_objects_manager.update();
                     match self.window.render(&self.render_objects_manager.render_objects()) {
                         Ok(_) => {},
-                        Err(crate::error::Error::SurfaceLost) => self.window.reconfigure(),
+                        Err(crate::error::Error::WgpuSurfaceLost) => self.window.reconfigure(),
                         Err(crate::error::Error::OutOfMemory) => *control_flow = ControlFlow::Exit,
                         Err(e) => eprintln!("{:?}", e),
                     }

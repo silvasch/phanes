@@ -4,20 +4,20 @@ pub enum Error {
     WinitOsError,
 
     #[error("the swap chain has been lost and needs to be recreated")]
-    SurfaceLost,
+    WgpuSurfaceLost,
     #[error("timed out while trying to aquire the next frame")]
-    SurfaceTimeout,
+    WgpuSurfaceTimeout,
     #[error("the swap chain must be updated")]
-    SurfaceOutdated,
+    WgpuSurfaceOutdated,
+    #[error("could not create a surface")]
+    WgpuSurfaceCreateError,
+    #[error("could not create a device")]
+    WgpuRequestDeviceError,
+    #[error("could not create adapter")]
+    WgpuAdapterCreationFailed,
+    
     #[error("the program has run out of memory")]
     OutOfMemory,
-    #[error("could not create a surface")]
-    SurfaceCreateError,
-    #[error("could not create a device")]
-    RequestDeviceError,
-
-    #[error("could not create adapter")]
-    AdapterCreationFailed,
     #[error("unknown error: {0}")]
     UnknownError(String),
 }

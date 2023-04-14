@@ -1,6 +1,7 @@
+use wgpu::util::DeviceExt;
 use winit::window::Window;
 
-use super::RenderObject;
+use super::{RenderObject, Vertex};
 
 pub struct Renderer {
     window: Window,
@@ -80,7 +81,9 @@ impl Renderer {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[],
+                buffers: &[
+                    Vertex::desc(),
+                ],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -122,7 +125,7 @@ impl Renderer {
 
     pub fn render(
         &self,
-        _render_objects: &Vec<Box<dyn RenderObject>>,
+        render_objects: &Vec<Box<dyn RenderObject>>,
     ) -> Result<(), crate::error::Error> {
         let output = match self.surface.get_current_texture() {
             Ok(output) => output,
@@ -143,6 +146,9 @@ impl Renderer {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("Render Encoder"),
             });
+
+        let (vertex_buffer, index_buffer, vertices_len, _indices_len) = self.get_buffers(render_objects);
+
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
@@ -163,6 +169,15 @@ impl Renderer {
             });
 
             render_pass.set_pipeline(&self.render_pipeline);
+
+            match index_buffer {
+                Some(_index_buffer) => todo!("allow usage of index buffer"),
+                None => {
+                    render_pass.set_vertex_buffer(0, vertex_buffer.slice(..));
+                    render_pass.draw(0..vertices_len as u32, 0..1)
+                }
+            }
+
             render_pass.draw(0..3, 0..1);
         }
 
@@ -170,6 +185,48 @@ impl Renderer {
         output.present();
 
         Ok(())
+    }
+
+    fn get_buffers(
+        &self,
+        render_objects: &Vec<Box<dyn RenderObject>>,
+    ) -> (wgpu::Buffer, Option<wgpu::Buffer>, usize, usize) {
+        let mut vertex_buffer: Vec<Vertex> = vec![];
+        let mut vertices_len: usize = 0;
+        let index_buffer: &[u16] = &[];
+        #[allow(unused_mut)]
+        let mut use_index_buffer = false;
+
+        for render_object in render_objects {
+            let (vertices, indices, vertex_len, _index_len) = render_object.to_vertices();
+
+            if let Some(_) = indices {
+                todo!("Implement index buffers");
+            };
+
+            vertices_len += vertex_len;
+            vertex_buffer.append(&mut (vertices.clone()));
+        }
+
+        let vertex_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(&vertex_buffer),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+
+        let index_buffer = if use_index_buffer {
+                Some(self.device.create_buffer_init(
+                    &wgpu::util::BufferInitDescriptor {
+                        label: Some("Index Buffer"),
+                        contents: bytemuck::cast_slice(index_buffer),
+                        usage: wgpu::BufferUsages::INDEX,
+                    }
+                ))
+        } else {
+            None
+        };
+
+        (vertex_buffer, index_buffer, vertices_len, 0)
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {

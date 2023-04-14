@@ -4,17 +4,17 @@ use winit::{
     window::WindowBuilder,
 };
 
-use super::{RenderObject, RenderObjectsManager, Renderer};
+use crate::renderer::{RenderObject, RenderObjectsManager, Renderer};
 
-pub struct App {
+pub struct Phanes {
     render_objects_manager: RenderObjectsManager,
     event_loop: EventLoop<()>,
     renderer: Renderer,
 }
 
-impl App {
-    pub fn new() -> AppBuilder {
-        AppBuilder::new()
+impl Phanes {
+    pub fn new() -> PhanesBuilder {
+        PhanesBuilder::new()
     }
 
     pub fn run(mut self) -> Result<(), crate::error::Error> {
@@ -60,11 +60,11 @@ impl App {
     }
 }
 
-pub struct AppBuilder {
+pub struct PhanesBuilder {
     render_objects: Vec<Box<dyn RenderObject>>,
 }
 
-impl AppBuilder {
+impl PhanesBuilder {
     pub fn new() -> Self {
         Self {
             render_objects: vec![],
@@ -76,13 +76,13 @@ impl AppBuilder {
         return self;
     }
 
-    pub async fn build(self) -> Result<App, crate::error::Error> {
+    pub async fn build(self) -> Result<Phanes, crate::error::Error> {
         let event_loop = EventLoop::new();
         let window = WindowBuilder::new()
             .build(&event_loop)
             .or(Err(crate::error::Error::WinitOsError))?;
 
-        Ok(App {
+        Ok(Phanes {
             render_objects_manager: RenderObjectsManager::new(self.render_objects),
             event_loop,
             renderer: Renderer::new(window).await?,

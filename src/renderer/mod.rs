@@ -1,10 +1,8 @@
-mod app;
-pub use app::{App, AppBuilder};
 mod render_object;
 pub use render_object::RenderObject;
 mod render_objects_manager;
-use render_objects_manager::RenderObjectsManager;
+pub(crate) use render_objects_manager::RenderObjectsManager;
 mod renderer;
-use renderer::Renderer;
+pub(crate) use renderer::Renderer;
 mod vertex;
 pub use vertex::Vertex;

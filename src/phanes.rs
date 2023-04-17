@@ -1,6 +1,8 @@
-use crate::PhanesError;
+use crate::{rendering_engine::RenderingEngine, PhanesError};
 
-pub struct Phanes {}
+pub struct Phanes {
+    rendering_engine: RenderingEngine,
+}
 
 impl Phanes {
     pub fn new() -> PhanesBuilder {
@@ -20,6 +22,8 @@ impl PhanesBuilder {
     }
 
     pub fn build(self) -> Phanes {
-        Phanes {}
+        Phanes {
+            rendering_engine: RenderingEngine::new(),
+        }
     }
 }

@@ -1,3 +1,5 @@
+use crate::PhanesError;
+
 pub struct Phanes {}
 
 impl Phanes {
@@ -5,7 +7,9 @@ impl Phanes {
         PhanesBuilder::new()
     }
 
-    pub fn run(self) {}
+    pub fn run(self) -> Result<(), PhanesError> {
+        Ok(())
+    }
 }
 
 pub struct PhanesBuilder {}

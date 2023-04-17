@@ -81,9 +81,7 @@ impl Renderer {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[
-                    Vertex::desc(),
-                ],
+                buffers: &[Vertex::desc()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -147,7 +145,8 @@ impl Renderer {
                 label: Some("Render Encoder"),
             });
 
-        let (vertex_buffer, index_buffer, vertices_len, _indices_len) = self.get_buffers(render_objects);
+        let (vertex_buffer, index_buffer, vertices_len, _indices_len) =
+            self.get_buffers(render_objects);
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
@@ -202,26 +201,29 @@ impl Renderer {
 
             if let Some(_) = indices {
                 todo!("Implement index buffers");
-            };
+            }
 
             vertices_len += vertex_len;
             vertex_buffer.append(&mut (vertices.clone()));
         }
 
-        let vertex_buffer = self.device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(&vertex_buffer),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
+        let vertex_buffer = self
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("Vertex Buffer"),
+                contents: bytemuck::cast_slice(&vertex_buffer),
+                usage: wgpu::BufferUsages::VERTEX,
+            });
 
         let index_buffer = if use_index_buffer {
-                Some(self.device.create_buffer_init(
-                    &wgpu::util::BufferInitDescriptor {
+            Some(
+                self.device
+                    .create_buffer_init(&wgpu::util::BufferInitDescriptor {
                         label: Some("Index Buffer"),
                         contents: bytemuck::cast_slice(index_buffer),
                         usage: wgpu::BufferUsages::INDEX,
-                    }
-                ))
+                    }),
+            )
         } else {
             None
         };

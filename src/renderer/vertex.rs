@@ -1,8 +1,18 @@
+use crate::builtin::Position;
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
-    pub position: [f32; 3],
-    pub color: [f32; 3],
+    position: [f32; 3],
+    color: [f32; 3],
+}
+
+impl Vertex {
+    pub fn new(position: Position, color: [f32; 3]) -> Self {
+        Self {
+
+        }
+    }
 }
 
 impl Vertex {
